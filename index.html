@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excuses.com - Generate Perfect Excuses Instantly</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Excuses.com</h1>
+            <p class="tagline">The perfect excuse for every situation</p>
+        </header>
+        
+        <main>
+            <div class="excuse-generator">
+                <div class="input-section">
+                    <label for="situation">Describe your situation:</label>
+                    <textarea id="situation" placeholder="Example: I didn't finish my homework..." required></textarea>
+                    <button id="generate-btn">Generate Excuse</button>
+                </div>
+                
+                <div class="output-section">
+                    <div class="excuse-card hidden" id="excuse-result">
+                        <h3>Your Excuse:</h3>
+                        <p id="excuse-text"></p>
+                        <div class="action-buttons">
+                            <button id="copy-btn">Copy to Clipboard</button>
+                            <button id="new-excuse-btn">Generate Another</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div class="suggestion-chips">
+            <p>Try these situations:</p>
+            <div class="chips">
+                <button class="chip">Late for work</button>
+                <button class="chip">Missed deadline</button>
+                <button class="chip">Forgot birthday</button>
+                <button class="chip">Cancel plans</button>
+                <button class="chip">Didn't respond to text</button>
+            </div>
+        </div>          <footer>
+            <p>&copy; 2025 Excuses.com - Your perfect alibi generator | Made by Biraj Paul (<a href="https://github.com/Biraj-P" target="_blank">Biraj-P</a>)</p>
+            <small>Disclaimer: Use these excuses responsibly and at your own risk!</small>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
