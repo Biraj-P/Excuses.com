@@ -1,12 +1,7 @@
 // netlify/functions/together-proxy.js
 // This is a serverless function that proxies requests to the Together API
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config();
-
-export const handler = async function(event, context) {
+exports.handler = async function(event, context) {
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return { 

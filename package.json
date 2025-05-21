@@ -2,10 +2,11 @@
   "name": "excuses-com",
   "version": "1.0.0",
   "description": "AI-powered excuse generator using Together API with Meta-Llama model",
-  "main": "index.html",
-  "scripts": {
-    "start": "serve",
-    "dev": "serve"
+  "main": "index.html",  "scripts": {
+    "start": "serve -s . -p 5000",
+    "dev": "serve -s . -p 5000",
+    "netlify:dev": "netlify dev",
+    "vercel:dev": "vercel dev"
   },
   "keywords": [
     "excuses",

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excuses.com - API Configuration</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        .config-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .save-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .save-btn:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .notification.success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .notification.warning {
+            background-color: rgba(255, 152, 0, 0.2);
+            border: 1px solid #ff9800;
+            color: #ff6d00;
+        }
+        
+        .platform {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Excuses.com</h1>
+            <p class="tagline">API Configuration</p>
+        </header>
+        
+        <main class="config-container">
+            <div class="notification warning">
+                <strong>Note:</strong> This page is for development and testing purposes. In production, API keys should be stored securely on the server.
+            </div>
+
+            <div class="form-group">
+                <label for="api-key">Together API Key:</label>
+                <input type="text" id="api-key" placeholder="Enter your Together API key">
+            </div>
+            
+            <button class="save-btn" onclick="saveApiKey()">Save API Key</button>
+            
+            <div id="status-message"></div>
+            
+            <div class="platform">
+                <h3>Why do I need an API key?</h3>
+                <p>The Excuses.com application uses the Together API to generate creative excuses using the Meta-Llama/Llama-3.3-70B model.</p>
+                <p>When running on platforms like GitHub Pages that don't support server-side code, you need to provide your own API key.</p>
+                <p>Get your API key from <a href="https://www.together.ai/" target="_blank">Together.ai</a></p>
+            </div>
+              <div class="platform">
+                <h3>Security Note</h3>
+                <p>Your API key is stored in your browser's local storage and is only sent directly to the Together API.</p>
+                <p>For better security, deploy the application to a platform that supports server-side code or serverless functions.</p>
+            </div>
+            
+            <div class="platform">
+                <h3>Cache Management</h3>
+                <p>Excuses are cached locally to improve performance and reduce API calls.</p>
+                <button class="save-btn" onclick="clearCache()">Clear Excuses Cache</button>
+                <div id="cache-status"></div>
+            </div>
+            
+            <a href="index.html" class="back-link">← Back to Excuse Generator</a>
+        </main>
+    </div>
+      <script src="api.js"></script>
+    <script>
+        // Load the existing API key if available
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiKey = localStorage.getItem('together_api_key');
+            if (apiKey) {
+                document.getElementById('api-key').value = apiKey;
+                showStatus('API key is configured', 'success');
+            }
+        });
+        
+        function saveApiKey() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            if (apiKey) {
+                localStorage.setItem('together_api_key', apiKey);
+                showStatus('API key saved successfully!', 'success');
+            } else {
+                showStatus('Please enter a valid API key', 'warning');
+            }
+        }
+          function showStatus(message, type) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.innerHTML = message;
+            statusElement.className = type;
+        }
+        
+        function clearCache() {
+            if (typeof clearExcuseCache === 'function') {
+                clearExcuseCache();
+                document.getElementById('cache-status').innerHTML = 'Cache cleared successfully!';
+                document.getElementById('cache-status').className = 'success';
+                setTimeout(() => {
+                    document.getElementById('cache-status').innerHTML = '';
+                }, 3000);
+            } else {
+                // If the function isn't available, try to clear localStorage directly
+                try {
+                    localStorage.removeItem('excuse_cache');
+                    document.getElementById('cache-status').innerHTML = 'Cache cleared successfully!';
+                    document.getElementById('cache-status').className = 'success';
+                } catch (e) {
+                    document.getElementById('cache-status').innerHTML = 'Error clearing cache: ' + e.message;
+                    document.getElementById('cache-status').className = 'warning';
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('cache-status').innerHTML = '';
+                }, 3000);
+            }
+        }
+            statusElement.className = `notification ${type}`;
+        }
+    </script>
+</body>
+</html>

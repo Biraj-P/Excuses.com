@@ -81,15 +81,52 @@
 
 .ai-badge {
     display: inline-block;
-    background-color: rgba(78, 84, 200, 0.1);
-    color: var(--primary-color);
-    font-size: 0.8em;
-    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
     padding: 3px 8px;
-    border-radius: 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    color: white;
     margin-left: 8px;
-    border: 1px solid var(--primary-light);
     vertical-align: middle;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ai-badge.local-mode {
+    background: linear-gradient(135deg, #ff9800, #ff6d00);
+}
+
+/* Cache status indicator */
+.cache-status {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(48, 209, 88, 0.2);
+    border: 1px solid rgba(48, 209, 88, 0.4);
+    padding: 4px 10px;
+    border-radius: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease;
+}
+
+.cache-status.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Cache status animation */
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(10px); }
+    15% { opacity: 1; transform: translateY(0); }
+    85% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(10px); }
+}
+
+.cache-status.animated {
+    animation: fadeInOut 3s ease forwards;
 }
 
 * {
@@ -217,6 +254,18 @@ button {
     padding: 25px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Excuse card animation */
+@keyframes highlightExcuse {
+    0% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transform: scale(1); }
+    50% { box-shadow: 0 0 20px rgba(78, 84, 200, 0.3); transform: scale(1.02); }
+    100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transform: scale(1); }
+}
+
+.excuse-highlight {
+    animation: highlightExcuse 0.8s ease-out;
 }
 
 .hidden {
@@ -374,6 +423,145 @@ footer small {
 
 .nav-icon {
     font-size: 20px;
+}
+
+/* Settings Menu Styles */
+.settings-menu {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 100;
+}
+
+.settings-toggle {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+}
+
+.settings-toggle:hover {
+    transform: rotate(30deg);
+    background-color: var(--light-color);
+}
+
+.settings-dropdown {
+    position: absolute;
+    top: 45px;
+    left: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 10px;
+    min-width: 200px;
+    display: none;
+}
+
+.settings-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-option {
+    padding: 5px 0;
+}
+
+.text-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+    text-align: left;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.2s ease;
+}
+
+.text-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Suggestion Chips Styling */
+.suggestion-chips {
+    margin: 30px 20px;
+    text-align: center;
+}
+
+.suggestion-chips p {
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.chip {
+    background-color: #f0f2ff;
+    border: 1px solid var(--primary-light);
+    color: var(--primary-color);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chip:hover {
+    background-color: var(--primary-light);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.chip:active {
+    transform: translateY(0);
+}
+
+/* Animation Control */
+.no-animations * {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+}
+
+/* Ensure that animations can be properly toggled */
+.notification, .settings-dropdown, #generate-btn, .chip, #copy-btn, #new-excuse-btn {
+    transition: all 0.3s ease;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-10px);}
+    60% {transform: translateY(-5px);}
+}
+
+.bounce {
+    animation: bounce 1s ease infinite;
+    animation-iteration-count: 1;
+}
+
+/* Ensure settings dropdown has proper z-index */
+.settings-dropdown {
+    z-index: 100;
 }
 
 /* Responsive adjustments */

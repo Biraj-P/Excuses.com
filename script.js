@@ -7,8 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const excuseText = document.getElementById('excuse-text');
     const copyBtn = document.getElementById('copy-btn');
     const newExcuseBtn = document.getElementById('new-excuse-btn');
-    const chipButtons = document.querySelectorAll('.chip');    // Initialize UI configuration
+    const chipButtons = document.querySelectorAll('.chip');
+    const settingsToggle = document.querySelector('.settings-toggle');
+    const settingsDropdown = document.getElementById('settings-dropdown');
+    const clearCacheBtn = document.getElementById('clear-cache-btn');
+    const toggleAnimationsBtn = document.getElementById('toggle-animations-btn');
+    
+    // Initialize UI configuration
     initApiConfig();
+    initSettingsMenu();
     
     // Current situation being processed
     let currentSituation = '';
@@ -16,7 +23,80 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     generateBtn.addEventListener('click', generateExcuse);
     copyBtn.addEventListener('click', copyToClipboard);
-    newExcuseBtn.addEventListener('click', generateNewExcuse);    /**
+    newExcuseBtn.addEventListener('click', generateNewExcuse);    
+    
+    /**
+     * Initialize settings menu functionality
+     */
+    function initSettingsMenu() {
+        // Toggle settings dropdown
+        settingsToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            settingsDropdown.classList.toggle('show');
+        });
+        
+        // Close settings dropdown when clicking outside
+        document.addEventListener('click', function() {
+            if (settingsDropdown.classList.contains('show')) {
+                settingsDropdown.classList.remove('show');
+            }
+        });
+        
+        // Prevent clicks inside dropdown from closing it
+        settingsDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // Clear cache button functionality
+        clearCacheBtn.addEventListener('click', function() {
+            if (typeof clearExcuseCache === 'function') {
+                clearExcuseCache();
+                showNotification('Excuse cache cleared!', 'success');
+            } else {
+                // Fallback if clearExcuseCache isn't available
+                try {
+                    localStorage.removeItem('excuse_cache');
+                    showNotification('Cache cleared successfully!', 'success');
+                } catch (e) {
+                    showNotification('Error clearing cache: ' + e.message, 'error');
+                }
+            }
+            
+            // Hide the dropdown
+            settingsDropdown.classList.remove('show');
+        });
+        
+        // Toggle animations button functionality
+        toggleAnimationsBtn.addEventListener('click', function() {
+            const animationsEnabled = localStorage.getItem('animations_disabled') !== 'true';
+            
+            if (animationsEnabled) {
+                // Disable animations
+                document.body.classList.add('no-animations');
+                localStorage.setItem('animations_disabled', 'true');
+                showNotification('Animations disabled', 'success');
+            } else {
+                // Enable animations
+                document.body.classList.remove('no-animations');
+                localStorage.setItem('animations_disabled', 'false');
+                showNotification('Animations enabled', 'success');
+            }
+            
+            // Update button text
+            toggleAnimationsBtn.textContent = animationsEnabled ? 'Enable Animations' : 'Disable Animations';
+            
+            // Hide the dropdown
+            settingsDropdown.classList.remove('show');
+        });
+        
+        // Set initial animations state
+        if (localStorage.getItem('animations_disabled') === 'true') {
+            document.body.classList.add('no-animations');
+            toggleAnimationsBtn.textContent = 'Enable Animations';
+        }
+    }
+    
+    /**
      * Initialize API configuration - sets up UI elements
      */
     function initApiConfig() {
@@ -77,8 +157,9 @@ document.addEventListener('DOMContentLoaded', function() {
         banner.className = 'github-pages-banner';
         banner.innerHTML = `
             <p><strong>⚠️ Limited Functionality:</strong> You're viewing this app on GitHub Pages, which doesn't support direct API calls due to security restrictions.</p>
-            <p>The app will generate excuses using a local database instead of the AI model.</p>
-            <p>For full AI functionality, <a href="config.html" style="color: white; text-decoration: underline;">configure your API key</a> or use a different hosting solution with proper backend support.</p>
+            <p>The app is using a <strong>local database</strong> instead of the Meta-Llama 3.3 AI model. Excuses are still high-quality but aren't uniquely generated.</p>
+            <p>Your requests are cached locally for better performance. You can clear the cache in the <a href="config.html" style="color: white; text-decoration: underline;">settings page</a>.</p>
+            <p>For full AI functionality with Meta-Llama 3.3, deploy to <a href="deploy.html" style="color: white; text-decoration: underline;">Netlify or Vercel</a>.</p>
             <button class="close-banner">✕</button>
         `;
         document.body.appendChild(banner);
@@ -101,57 +182,165 @@ document.addEventListener('DOMContentLoaded', function() {
             situationInput.value = this.textContent;
             situationInput.focus();
         });
-    });
-    
-    // Main function to generate an excuse
+    });    // Main function to generate an excuse
     async function generateExcuse() {
         const situation = situationInput.value.trim();
         
         if (!situation) {
-            alert('Please describe your situation first!');
+            showNotification('Please describe your situation first!', 'warning');
             situationInput.focus();
             return;
         }
         
         // Store current situation
         currentSituation = situation;
-          // Show loading state
+          
+        // Show loading state
         generateBtn.disabled = true;
         generateBtn.textContent = 'Generating...';
         const loadingSpinner = document.getElementById('loading-spinner');
         loadingSpinner.classList.remove('hidden');
         
+        // Check cache first - we do this manually to control the UI
+        let fromCache = false;
+        let excuse;
+        
         try {
-            // Generate excuse using Together API
-            const excuse = await generateExcuseWithLlamaModel(situation);
+            // Check if the excuse is in cache
+            if (typeof getFromExcuseCache === 'function') {
+                excuse = getFromExcuseCache(situation);
+                if (excuse) {
+                    fromCache = true;
+                    console.log('Using cached excuse for:', situation);
+                }
+            }
             
-            // Display the excuse
+            // If not in cache, or cache function not available, generate a new excuse
+            if (!excuse) {
+                // Check if we're on GitHub Pages to add a slight artificial delay
+                // This makes the fallback feel more natural and similar to API response
+                const isGitHubPages = window.location.hostname.includes('github.io');
+                if (isGitHubPages) {
+                    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200)); // 0.8-2s delay
+                }
+                
+                // Generate excuse using Together API (or fallback)
+                excuse = await generateExcuseWithLlamaModel(situation);
+            }
+              // Display the excuse
             excuseText.textContent = excuse;
-            excuseResult.classList.remove('hidden');
+            
+            // Show the excuse card if hidden
+            if (excuseResult.classList.contains('hidden')) {
+                excuseResult.classList.remove('hidden');
+            } else if (localStorage.getItem('animations_disabled') !== 'true') {
+                // Apply highlight animation when generating a new excuse for an already visible card
+                excuseResult.classList.remove('excuse-highlight');
+                void excuseResult.offsetWidth; // Force layout recalculation
+                excuseResult.classList.add('excuse-highlight');
+            }
+            
+            // Update source badge
+            const excuseSource = document.getElementById('excuse-source');
+            if (excuseSource) {
+                // Get environment information
+                const isRestrictedEnv = typeof isRestrictedEnvironment === 'function' 
+                    ? isRestrictedEnvironment() 
+                    : window.location.hostname.includes('github.io');
+                
+                // Change the badge text based on source
+                if (isRestrictedEnv) {
+                    excuseSource.textContent = 'Local Database';
+                    excuseSource.classList.add('local-mode');
+                } else {
+                    excuseSource.textContent = 'Meta-Llama 3.3';
+                    excuseSource.classList.remove('local-mode');
+                }
+            }
+              // Update cache indicator
+            const cacheIndicator = document.getElementById('cache-indicator');
+            if (cacheIndicator) {
+                // First remove any existing animations/classes
+                cacheIndicator.classList.remove('active', 'animated');
+                
+                // Force layout recalculation to ensure animation restarts
+                void cacheIndicator.offsetWidth;
+                
+                if (fromCache) {
+                    // Show cache indicator with animation if animations are enabled
+                    if (localStorage.getItem('animations_disabled') !== 'true') {
+                        cacheIndicator.classList.add('animated');
+                    } else {
+                        cacheIndicator.classList.add('active');
+                        // Hide the indicator after 3 seconds if not using animation
+                        setTimeout(() => {
+                            cacheIndicator.classList.remove('active');
+                        }, 3000);
+                    }
+                } else {
+                    cacheIndicator.classList.remove('active', 'animated');
+                }
+            }
             
             // Smooth scroll to result
             excuseResult.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
             console.error('Error generating excuse:', error);
-            alert('Failed to generate an excuse. Please try again later.');        } finally {
+            showNotification('Something went wrong generating your excuse. Please try again.', 'error');
+        } finally {
             // Reset button state
             generateBtn.disabled = false;
             generateBtn.textContent = 'Generate Excuse';
             document.getElementById('loading-spinner').classList.add('hidden');
         }
-    }
-      // Generate a new excuse for the same situation
+    }    // Generate a new excuse for the same situation
     async function generateNewExcuse() {
         try {
+            // Update button state
             newExcuseBtn.disabled = true;
             newExcuseBtn.textContent = 'Generating...';
             document.getElementById('loading-spinner').classList.remove('hidden');
             
-            const excuse = await generateExcuseWithLlamaModel(currentSituation);
+            // Check if we're on GitHub Pages to add a slight artificial delay
+            const isGitHubPages = window.location.hostname.includes('github.io');
+            if (isGitHubPages) {
+                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200)); // 0.8-2s delay
+            }            // For "Generate Another" we always want a fresh excuse, so bypass the cache
+            const excuse = await generateExcuseWithLlamaModel(currentSituation, { bypassCache: true });
             excuseText.textContent = excuse;
+            
+            // Apply highlight animation if animations are enabled
+            if (localStorage.getItem('animations_disabled') !== 'true') {
+                excuseResult.classList.remove('excuse-highlight');
+                void excuseResult.offsetWidth; // Force layout recalculation
+                excuseResult.classList.add('excuse-highlight');
+            }
+            
+            // Make sure the cache indicator is hidden since this is a fresh generate
+            const cacheIndicator = document.getElementById('cache-indicator');
+            if (cacheIndicator) {
+                cacheIndicator.classList.remove('active', 'animated');
+            }
+            
+            // Update source badge
+            const excuseSource = document.getElementById('excuse-source');
+            if (excuseSource) {
+                const isRestrictedEnv = typeof isRestrictedEnvironment === 'function' 
+                    ? isRestrictedEnvironment() 
+                    : window.location.hostname.includes('github.io');
+                
+                // Change the badge text based on source
+                if (isRestrictedEnv) {
+                    excuseSource.textContent = 'Local Database';
+                    excuseSource.classList.add('local-mode');
+                } else {
+                    excuseSource.textContent = 'Meta-Llama 3.3';
+                    excuseSource.classList.remove('local-mode');
+                }
+            }
         } catch (error) {
             console.error('Error generating new excuse:', error);
-            alert('Failed to generate a new excuse. Please try again later.');
+            showNotification('Failed to generate a new excuse. Please try again.', 'error');
         } finally {
             newExcuseBtn.disabled = false;
             newExcuseBtn.textContent = 'Generate Another';
@@ -510,23 +699,100 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'generic'
         };
     }
-    
-    // Function to get a random excuse from an array
-    function getRandomExcuse(excuseArray) {
-        const randomIndex = Math.floor(Math.random() * excuseArray.length);
-        return excuseArray[randomIndex];
+      /**
+     * Get a pseudo-random excuse from an array based on the situation
+     * This creates some determinism so the same situation will tend to get
+     * the same excuse, but still allows for variety
+     * @param {Array} excuseArray - Array of excuses to choose from
+     * @param {string} situation - The situation to use as a seed
+     * @returns {string} - Selected excuse
+     */
+    function getExcuseFromArray(excuseArray, situation) {
+        // Create a simple hash from the situation string for deterministic selection
+        let hash = 0;
+        for (let i = 0; i < situation.length; i++) {
+            hash = ((hash << 5) - hash) + situation.charCodeAt(i);
+            hash |= 0; // Convert to 32bit integer
+        }
+        
+        // Use the hash to select an index, but add some randomness
+        const baseIndex = Math.abs(hash) % excuseArray.length;
+        
+        // 70% of the time, use the deterministic excuse
+        // 30% of the time, choose randomly for variety
+        if (Math.random() < 0.7) {
+            return excuseArray[baseIndex];
+        } else {
+            const randomIndex = Math.floor(Math.random() * excuseArray.length);
+            return excuseArray[randomIndex];
+        }
     }
-    
-    // Main function to get an excuse based on the situation
+      // Main function to get an excuse based on the situation
     function getExcuseForSituation(situation) {
         const categorization = determineCategory(situation);
         
         if (categorization.type === 'specific') {
-            return getRandomExcuse(specificExcuses[categorization.situation]);
+            return getExcuseFromArray(specificExcuses[categorization.situation], situation);
         } else if (categorization.type === 'category') {
-            return getRandomExcuse(excuseCategories[categorization.category]);
+            return getExcuseFromArray(excuseCategories[categorization.category], situation);
         } else {
-            return getRandomExcuse(genericExcuses);
+            return getExcuseFromArray(genericExcuses, situation);
         }
     }
+    
+    // Make the getExcuseForSituation function globally available
+    // This ensures it can be accessed from api.js
+    window.getExcuseForSituation = getExcuseForSituation;
+    
+    /**
+     * Initialize cache management
+     * This adds functionality to clear the excuse cache
+     */
+    function initCacheManagement() {
+        // Add a small settings menu for cache management
+        const container = document.querySelector('.container');
+        const settingsMenu = document.createElement('div');
+        settingsMenu.className = 'settings-menu';
+        settingsMenu.innerHTML = `
+            <button class="settings-toggle" title="Settings">⚙️</button>
+            <div class="settings-dropdown">
+                <div class="settings-option">
+                    <button id="clear-cache" class="text-button">🧹 Clear Excuse Cache</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(settingsMenu);
+        
+        // Add event listeners
+        const settingsToggle = settingsMenu.querySelector('.settings-toggle');
+        const settingsDropdown = settingsMenu.querySelector('.settings-dropdown');
+        const clearCacheBtn = document.getElementById('clear-cache');
+        
+        // Show/hide settings dropdown
+        settingsToggle.addEventListener('click', function() {
+            settingsDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!settingsMenu.contains(event.target)) {
+                settingsDropdown.classList.remove('show');
+            }
+        });
+        
+        // Clear cache button functionality
+        clearCacheBtn.addEventListener('click', function() {
+            if (typeof clearExcuseCache === 'function') {
+                clearExcuseCache();
+                showNotification('Excuse cache cleared successfully', 'success');
+                settingsDropdown.classList.remove('show');
+            } else {
+                console.error('clearExcuseCache function not available');
+                showNotification('Could not clear cache: function not available', 'error');
+            }
+        });
+    }
+    
+    // Initialize cache management
+    initCacheManagement();
 });

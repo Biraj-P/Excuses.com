@@ -22,7 +22,26 @@
     </script>
 </head>
 <body>
-    <div class="container">        <header>
+    <div class="container">        
+        <div class="settings-menu">
+            <button class="settings-toggle" title="Settings">⚙️</button>
+            <div class="settings-dropdown" id="settings-dropdown">
+                <div class="settings-option">
+                    <button class="text-button" id="clear-cache-btn">Clear Excuse Cache</button>
+                </div>
+                <div class="settings-option">
+                    <button class="text-button" id="toggle-animations-btn">Toggle Animations</button>
+                </div>
+                <div class="settings-option">
+                    <a href="config.html" class="text-button">API Configuration</a>
+                </div>
+                <div class="settings-option">
+                    <a href="deploy.html" class="text-button">Deployment Guide</a>
+                </div>
+            </div>
+        </div>
+        
+        <header>
             <h1>Excuses.com</h1>
             <p class="tagline">The perfect excuse for every situation</p>
             <nav class="main-nav">
@@ -40,11 +59,11 @@
                     <textarea id="situation" placeholder="Example: I didn't finish my homework..." required></textarea>
                     <button id="generate-btn">Generate Excuse</button>
                     <div id="loading-spinner" class="spinner hidden"></div>
-                </div>
-                  <div class="output-section">
+                </div>                <div class="output-section">
                     <div class="excuse-card hidden" id="excuse-result">
-                        <h3>Your AI-Generated Excuse: <span class="ai-badge">Meta-Llama 3.3</span></h3>
+                        <h3>Your Generated Excuse: <span id="excuse-source" class="ai-badge">Meta-Llama 3.3</span></h3>
                         <p id="excuse-text"></p>
+                        <div class="cache-status" id="cache-indicator">From cache</div>
                         <div class="action-buttons">
                             <button id="copy-btn">Copy to Clipboard</button>
                             <button id="new-excuse-btn">Generate Another</button>
