@@ -8,26 +8,35 @@ A simple, elegant excuse generator for those moments when you need the perfect a
 
 - Simple and clean user interface
 - Generate excuses for various situations instantly
+- Integration with Together API and Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model for AI-generated excuses
 - Pre-built suggestion chips for common scenarios
 - Easy copy-to-clipboard functionality
 - Mobile-responsive design
 
 ## How It Works
 
-The user enters a description of their situation, and our sophisticated excuse generator will create a plausible and relevant excuse. The generator analyzes keywords from the input to determine the best category of excuse to provide.
+The user enters a description of their situation, and our sophisticated excuse generator will create a plausible and relevant excuse. The system uses Together API's Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model for generating creative and contextually appropriate excuses.
 
 ## Local Development
 
 1. Clone this repository
-2. Open `index.html` in your browser
-3. Start generating excuses!
+2. Rename `.env.example` to `.env` and add your Together API key
+3. Open `index.html` in your browser using a local server (due to API requests)
+4. Start generating excuses!
 
+## Together API Setup
+
+1. Sign up for an account at [Together](https://www.together.ai/)
+2. Generate an API key from your account settings
+3. Add your API key to the `.env` file or directly in the script.js file
+4. Make sure to protect your API key and not expose it in public repositories
 
 ## Technologies Used
 
 - HTML5
 - CSS3
 - JavaScript (Vanilla)
+- Together API with Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model
 - Google Fonts (Poppins)
 
 ## License

@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const excuseText = document.getElementById('excuse-text');
     const copyBtn = document.getElementById('copy-btn');
     const newExcuseBtn = document.getElementById('new-excuse-btn');
-    const chipButtons = document.querySelectorAll('.chip');
+    const chipButtons = document.querySelectorAll('.chip');    // Initialize UI configuration
+    initApiConfig();
     
     // Current situation being processed
     let currentSituation = '';
@@ -16,6 +17,36 @@ document.addEventListener('DOMContentLoaded', function() {
     generateBtn.addEventListener('click', generateExcuse);
     copyBtn.addEventListener('click', copyToClipboard);
     newExcuseBtn.addEventListener('click', generateNewExcuse);
+      /**
+     * Initialize API configuration - sets up UI elements
+     */
+    function initApiConfig() {
+        // Add API model indicator
+        const apiInfoDiv = document.createElement('div');
+        apiInfoDiv.className = 'api-info';
+        apiInfoDiv.innerHTML = '🧠 AI: Meta-Llama-3.3-70B';
+        apiInfoDiv.title = 'Using Together API with Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model';
+        document.querySelector('.container').appendChild(apiInfoDiv);
+        
+        // Show a notification that AI is enabled
+        setTimeout(() => {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = 'AI-powered excuses enabled!';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            }, 100);
+        }, 1000);
+    }
     
     // Set up suggestion chips
     chipButtons.forEach(chip => {
@@ -26,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Main function to generate an excuse
-    function generateExcuse() {
+    async function generateExcuse() {
         const situation = situationInput.value.trim();
         
         if (!situation) {
@@ -37,20 +68,48 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Store current situation
         currentSituation = situation;
+          // Show loading state
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating...';
+        const loadingSpinner = document.getElementById('loading-spinner');
+        loadingSpinner.classList.remove('hidden');
         
-        // Generate and display excuse
-        const excuse = getExcuseForSituation(situation);
-        excuseText.textContent = excuse;
-        excuseResult.classList.remove('hidden');
-        
-        // Smooth scroll to result
-        excuseResult.scrollIntoView({ behavior: 'smooth' });
+        try {
+            // Generate excuse using Together API
+            const excuse = await generateExcuseWithLlamaModel(situation);
+            
+            // Display the excuse
+            excuseText.textContent = excuse;
+            excuseResult.classList.remove('hidden');
+            
+            // Smooth scroll to result
+            excuseResult.scrollIntoView({ behavior: 'smooth' });
+        } catch (error) {
+            console.error('Error generating excuse:', error);
+            alert('Failed to generate an excuse. Please try again later.');        } finally {
+            // Reset button state
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate Excuse';
+            document.getElementById('loading-spinner').classList.add('hidden');
+        }
     }
-    
-    // Generate a new excuse for the same situation
-    function generateNewExcuse() {
-        const excuse = getExcuseForSituation(currentSituation);
-        excuseText.textContent = excuse;
+      // Generate a new excuse for the same situation
+    async function generateNewExcuse() {
+        try {
+            newExcuseBtn.disabled = true;
+            newExcuseBtn.textContent = 'Generating...';
+            document.getElementById('loading-spinner').classList.remove('hidden');
+            
+            const excuse = await generateExcuseWithLlamaModel(currentSituation);
+            excuseText.textContent = excuse;
+        } catch (error) {
+            console.error('Error generating new excuse:', error);
+            alert('Failed to generate a new excuse. Please try again later.');
+        } finally {
+            newExcuseBtn.disabled = false;
+            newExcuseBtn.textContent = 'Generate Another';
+            document.getElementById('loading-spinner').classList.add('hidden');
+        }
     }
     
     // Copy excuse to clipboard
@@ -69,6 +128,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Failed to copy: ', err);
                 alert('Failed to copy to clipboard. Please try again.');
             });
+    }
+    
+    /**
+     * Generate an excuse using Together API's Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model
+     * @param {string} situation - The situation to generate an excuse for
+     * @returns {Promise<string>} - The generated excuse
+     */    // generateExcuseWithLlamaModel is now imported from api.js
+    
+    /**
+     * Show a notification to the user
+     * @param {string} message - The notification message
+     * @param {string} type - The type of notification (success, error, etc.)
+     */
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }, 100);
     }
     
     // EXCUSE DATABASE

@@ -11,6 +11,81 @@
     --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
+/* Spinner Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--light-color);
+    animation: spin 1s ease-in-out infinite;
+    margin: 0 10px;
+}
+
+.api-info {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-color);
+    box-shadow: var(--shadow);
+    cursor: help;
+}
+
+.notification {
+    position: fixed;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    transition: bottom 0.5s ease-in-out;
+    z-index: 1000;
+    font-weight: 500;
+}
+
+.notification.error {
+    background-color: var(--secondary-color);
+}
+
+.notification.warning {
+    background-color: #ff9800;
+}
+
+.notification.success {
+    background-color: var(--success-color);
+}
+
+.notification.show {
+    bottom: 20px;
+}
+
+.ai-badge {
+    display: inline-block;
+    background-color: rgba(78, 84, 200, 0.1);
+    color: var(--primary-color);
+    font-size: 0.8em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    border: 1px solid var(--primary-light);
+    vertical-align: middle;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -29,10 +104,11 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background-color: white;
-    border-radius: 16px;
+    background: var(--light-color);
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    position: relative;
 }
 
 header {
@@ -226,6 +302,22 @@ footer small {
     display: block;
     margin-top: 5px;
     opacity: 0.7;
+}
+
+.api-settings {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 24px;
+    opacity: 0.7;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 100;
+}
+
+.api-settings:hover {
+    opacity: 1;
+    transform: rotate(45deg);
 }
 
 /* Responsive adjustments */
