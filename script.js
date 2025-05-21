@@ -698,16 +698,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return {
             type: 'generic'
         };
-    }
-      /**
+    }    /**
      * Get a pseudo-random excuse from an array based on the situation
      * This creates some determinism so the same situation will tend to get
      * the same excuse, but still allows for variety
      * @param {Array} excuseArray - Array of excuses to choose from
      * @param {string} situation - The situation to use as a seed
+     * @param {Object} options - Optional parameters
+     * @param {boolean} options.forceRandom - If true, always return a random excuse
      * @returns {string} - Selected excuse
      */
-    function getExcuseFromArray(excuseArray, situation) {
+    function getExcuseFromArray(excuseArray, situation, options = {}) {
         // Create a simple hash from the situation string for deterministic selection
         let hash = 0;
         for (let i = 0; i < situation.length; i++) {
@@ -718,6 +719,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Use the hash to select an index, but add some randomness
         const baseIndex = Math.abs(hash) % excuseArray.length;
         
+        // If forceRandom is true, always choose a random excuse
+        if (options.forceRandom) {
+            // Ensure we don't return the deterministic choice when forcing randomness
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * excuseArray.length);
+            } while (randomIndex === baseIndex && excuseArray.length > 1);
+            
+            return excuseArray[randomIndex];
+        }
+        
         // 70% of the time, use the deterministic excuse
         // 30% of the time, choose randomly for variety
         if (Math.random() < 0.7) {
@@ -726,17 +738,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const randomIndex = Math.floor(Math.random() * excuseArray.length);
             return excuseArray[randomIndex];
         }
-    }
-      // Main function to get an excuse based on the situation
-    function getExcuseForSituation(situation) {
+    }    // Main function to get an excuse based on the situation
+    function getExcuseForSituation(situation, options = {}) {
         const categorization = determineCategory(situation);
         
         if (categorization.type === 'specific') {
-            return getExcuseFromArray(specificExcuses[categorization.situation], situation);
+            return getExcuseFromArray(specificExcuses[categorization.situation], situation, options);
         } else if (categorization.type === 'category') {
-            return getExcuseFromArray(excuseCategories[categorization.category], situation);
+            return getExcuseFromArray(excuseCategories[categorization.category], situation, options);
         } else {
-            return getExcuseFromArray(genericExcuses, situation);
+            return getExcuseFromArray(genericExcuses, situation, options);
         }
     }
     
