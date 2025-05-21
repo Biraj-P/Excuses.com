@@ -122,6 +122,7 @@ header {
     padding: 30px 20px;
     background-color: var(--primary-color);
     color: white;
+    position: relative;
 }
 
 h1 {
@@ -336,39 +337,43 @@ footer small {
     border-radius: 50%;
 }
 
-/* Deployment status styles */
-.deployment-status {
-    font-size: 0.85rem;
-    margin: 10px 0;
-    font-weight: 500;
+/* Navigation Menu Styles */
+.main-nav {
+    position: absolute;
+    top: 20px;
+    right: 20px;
 }
 
-.warning-text {
-    color: #ff9800;
+.main-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
 }
 
-.success-text {
-    color: var(--success-color);
+.main-nav li {
+    margin-left: 10px;
 }
 
-.info-text {
-    color: var(--primary-color);
-}
-
-.footer-links {
-    margin-top: 10px;
-    font-size: 0.85rem;
-}
-
-.footer-links a {
-    color: var(--primary-light);
+.main-nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
     text-decoration: none;
-    transition: color 0.2s;
+    transition: background-color 0.3s;
 }
 
-.footer-links a:hover {
-    color: var(--primary-color);
-    text-decoration: underline;
+.main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-icon {
+    font-size: 20px;
 }
 
 /* Responsive adjustments */

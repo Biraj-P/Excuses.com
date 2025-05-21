@@ -72,14 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     /**
      * Add an information banner for GitHub Pages users
-     */
-    function addGitHubPagesInfoBanner() {
+     */    function addGitHubPagesInfoBanner() {
         const banner = document.createElement('div');
         banner.className = 'github-pages-banner';
         banner.innerHTML = `
             <p><strong>⚠️ Limited Functionality:</strong> You're viewing this app on GitHub Pages, which doesn't support direct API calls due to security restrictions.</p>
             <p>The app will generate excuses using a local database instead of the AI model.</p>
-            <p>For full AI functionality, please use a different hosting solution with proper backend support.</p>
+            <p>For full AI functionality, <a href="config.html" style="color: white; text-decoration: underline;">configure your API key</a> or use a different hosting solution with proper backend support.</p>
             <button class="close-banner">✕</button>
         `;
         document.body.appendChild(banner);

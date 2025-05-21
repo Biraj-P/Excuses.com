@@ -25,7 +25,8 @@ async function generateExcuseWithLlamaModel(situation) {
                         window.location.hostname === 'excuses.com';
         const isDevelopment = window.location.hostname === 'localhost' || 
                         window.location.hostname === '127.0.0.1';
-          // Determine how to handle API requests based on environment
+        
+        // Determine how to handle API requests based on environment
         let apiUrl, apiKey, useServerlessFunction = false;
         
         if (isNetlify) {
@@ -187,27 +188,4 @@ function cleanupExcuse(text) {
     cleaned = cleaned.replace(/\[.*?\]/g, '').trim();
     
     return cleaned;
-}
-
-// Check if the API is available and working
-async function checkApiAvailability() {
-    try {
-        // Simple test request with minimal tokens
-        const testSituation = "test";
-        const result = await generateExcuseWithLlamaModel(testSituation);
-        
-        // If we get a result without an error, the API is working
-        console.log("API check successful:", result.substring(0, 50) + "...");
-        return {
-            available: true,
-            source: "together-api"
-        };
-    } catch (error) {
-        console.warn("API check failed:", error.message);
-        return {
-            available: false,
-            error: error.message,
-            source: "local-fallback"
-        };
-    }
 }

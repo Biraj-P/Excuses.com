@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excuses.com - Deployment Guide</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        .deployment-guide {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .step {
+            margin-bottom: 30px;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            line-height: 28px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-top: 40px;
+        }
+        
+        code {
+            display: block;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .platform {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 20px;
+            margin: 20px 0;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Excuses.com</h1>
+            <p class="tagline">Deployment Guide</p>
+        </header>
+        
+        <main class="deployment-guide">
+            <div class="warning">
+                <strong>⚠️ Important:</strong> This application requires a server-side component or serverless functions to work with the Together API. 
+                GitHub Pages does not support server-side code and will only work with the local excuse database fallback.
+            </div>
+            
+            <h2>Deployment Options</h2>
+            
+            <div class="platform">
+                <h3>1. Netlify (Recommended)</h3>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span>Sign up for a <a href="https://netlify.com" target="_blank">Netlify account</a></span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span>Connect your GitHub repository or upload this project</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span>Set up environment variables in Netlify:</span>
+                    <code>TOGETHER_API_KEY=your_api_key_here</code>
+                </div>
+                <p>The serverless function in <code>netlify/functions/together-proxy.js</code> is already set up to handle API calls securely.</p>
+            </div>
+            
+            <div class="platform">
+                <h3>2. Vercel</h3>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span>Sign up for a <a href="https://vercel.com" target="_blank">Vercel account</a></span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span>Create a <code>vercel.json</code> file:</span>
+                    <code>{
+  "version": 2,
+  "builds": [
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "api/together-api.js" }
+  ]
+}</code>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span>Create an <code>api/together-api.js</code> file:</span>
+                    <code>module.exports = async (req, res) => {
+  const apiKey = process.env.TOGETHER_API_KEY;
+  try {
+    const response = await fetch("https://api.together.xyz/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(req.body)
+    });
+    const data = await response.json();
+    return res.json(data);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};</code>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span>Set up environment variables in Vercel's dashboard</span>
+                </div>
+            </div>
+            
+            <div class="platform">
+                <h3>3. Custom Server</h3>
+                <p>You can also deploy to any hosting provider that supports server-side code (Node.js, Python, etc.).</p>
+                <p>Create a simple proxy endpoint that forwards requests to the Together API with your API key.</p>
+            </div>
+            
+            <h2>Testing Your Deployment</h2>
+            <p>After deployment, test the application by entering different situations and checking if the AI generates unique excuses each time.</p>
+            <p>Check browser console logs for any API errors.</p>
+            
+            <h2>Local Development</h2>
+            <p>For local development:</p>
+            <code>npm install -g serve
+serve</code>
+            <p>This will start a local server at http://localhost:5000</p>
+            
+            <h2>Need Help?</h2>
+            <p>If you encounter any issues with deployment, please check:</p>
+            <ul>
+                <li>API key is correctly set in environment variables</li>
+                <li>Serverless function is properly configured</li>
+                <li>CORS is properly handled</li>
+            </ul>
+        </main>
+    </div>
+</body>
+</html>
