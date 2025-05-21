@@ -145,16 +145,20 @@ async function generateExcuseWithLlamaModel(situation, options = {}) {
           // If we're in a restricted environment like GitHub Pages, directly use the local fallback
         if (isRestrictedEnv) {
             console.log('%c⚠️ Restricted environment detected: Using local excuses database', 'color:#ff9800; font-weight: bold');
-            
-            // For GitHub Pages, we need to check if the function is available in the window object
+              // For GitHub Pages, we need to check if the function is available in the window object
             // This ensures it can be accessed from different script files
             if (typeof window.getExcuseForSituation === 'function') {
-                const localExcuse = window.getExcuseForSituation(situation);
+                // If this is a bypassCache request (like "Generate Another"), force randomness
+                const localExcuse = options.bypassCache 
+                    ? window.getExcuseForSituation(situation, { forceRandom: true })
+                    : window.getExcuseForSituation(situation);
                 // Add to cache
                 addToExcuseCache(situation, localExcuse);
                 return localExcuse;
             } else if (typeof getExcuseForSituation === 'function') {
-                const localExcuse = getExcuseForSituation(situation);
+                const localExcuse = options.bypassCache 
+                    ? getExcuseForSituation(situation, { forceRandom: true })
+                    : getExcuseForSituation(situation);
                 // Add to cache
                 addToExcuseCache(situation, localExcuse);
                 return localExcuse;
@@ -308,17 +312,21 @@ async function generateExcuseWithLlamaModel(situation, options = {}) {
         if (typeof window !== 'undefined' && typeof showNotification === 'function') {
             showNotification(errorMessage, 'error');
         }
-        
-        // Try to get an excuse from cache first
-        const cachedExcuse = getFromExcuseCache(situation);
-        if (cachedExcuse) {
-            console.log('Using cached excuse after API error');
-            return cachedExcuse;
+          // Try to get an excuse from cache first, but only if not bypassing cache
+        if (!options.bypassCache) {
+            const cachedExcuse = getFromExcuseCache(situation);
+            if (cachedExcuse) {
+                console.log('Using cached excuse after API error');
+                return cachedExcuse;
+            }
         }
         
         // Fallback to local excuse generation if available
         if (typeof getExcuseForSituation === 'function') {
-            const localExcuse = getExcuseForSituation(situation);
+            // Pass the forceRandom option if we're bypassing cache
+            const localExcuse = getExcuseForSituation(situation, { 
+                forceRandom: options.bypassCache 
+            });
             // Still add this to cache for future requests
             addToExcuseCache(situation, localExcuse);
             return localExcuse;

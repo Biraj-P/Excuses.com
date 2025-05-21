@@ -151,10 +151,10 @@
                 showStatus('Please enter a valid API key', 'warning');
             }
         }
-          function showStatus(message, type) {
+        function showStatus(message, type) {
             const statusElement = document.getElementById('status-message');
             statusElement.innerHTML = message;
-            statusElement.className = type;
+            statusElement.className = `notification ${type}`;
         }
         
         function clearCache() {
@@ -180,8 +180,6 @@
                     document.getElementById('cache-status').innerHTML = '';
                 }, 3000);
             }
-        }
-            statusElement.className = `notification ${type}`;
         }
     </script>
 </body>
