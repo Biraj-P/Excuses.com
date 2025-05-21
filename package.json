@@ -1,0 +1,27 @@
+{
+  "name": "excuses-com",
+  "version": "1.0.0",
+  "description": "A creative excuse generator using Together AI's Llama model",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx netlify-cli dev"
+  },
+  "keywords": [
+    "excuses",
+    "together-ai",
+    "llama",
+    "serverless"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.0.0",
+    "serve": "^14.2.0"
+  }
+}

@@ -8,7 +8,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- GitHub Pages compatibility meta tag -->
+    <meta name="github-pages-compatibility" content="true">
+    <!-- Load API handler first -->
     <script src="api.js"></script>
+    <!-- Store detection code -->
+    <script>
+        // Early detection of GitHub Pages for styling purposes
+        if (window.location.hostname.includes('github.io')) {
+            document.documentElement.classList.add('github-pages');
+            console.log('GitHub Pages environment detected');
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -46,13 +57,35 @@
                 <button class="chip">Forgot birthday</button>
                 <button class="chip">Cancel plans</button>
                 <button class="chip">Didn't respond to text</button>
-            </div>
-        </div>          <footer>
+            </div>        </div>          <footer>
             <p>&copy; 2025 Excuses.com - Your perfect alibi generator | Made by Biraj Paul (<a href="https://github.com/Biraj-P" target="_blank">Biraj-P</a>)</p>
             <small>Disclaimer: Use these excuses responsibly and at your own risk!</small>
+            <p id="deployment-status" class="deployment-status"></p>
+            <div class="footer-links">
+                <a href="deploy.html">Deployment Guide</a> | 
+                <a href="https://github.com/Biraj-P/excuses-generator">GitHub</a>
+            </div>
         </footer>
     </div>
     
     <script src="script.js"></script>
+    <script>
+        // Display deployment environment information
+        document.addEventListener('DOMContentLoaded', function() {
+            const deploymentStatus = document.getElementById('deployment-status');
+            if (window.location.hostname.includes('github.io')) {
+                deploymentStatus.textContent = '⚠️ Running on GitHub Pages with limited functionality';
+                deploymentStatus.classList.add('warning-text');
+            } else if (window.location.hostname.includes('netlify.app') || 
+                      window.location.hostname === 'excuses.com') {
+                deploymentStatus.textContent = '✅ Running with full AI functionality via serverless functions';
+                deploymentStatus.classList.add('success-text');
+            } else if (window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1') {
+                deploymentStatus.textContent = '🔧 Running in development mode';
+                deploymentStatus.classList.add('info-text');
+            }
+        });
+    </script>
 </body>
 </html>

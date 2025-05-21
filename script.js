@@ -16,23 +16,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     generateBtn.addEventListener('click', generateExcuse);
     copyBtn.addEventListener('click', copyToClipboard);
-    newExcuseBtn.addEventListener('click', generateNewExcuse);
-      /**
+    newExcuseBtn.addEventListener('click', generateNewExcuse);    /**
      * Initialize API configuration - sets up UI elements
      */
     function initApiConfig() {
-        // Add API model indicator
+        // Check if running on GitHub Pages
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        
+        // Add API model indicator with appropriate label
         const apiInfoDiv = document.createElement('div');
         apiInfoDiv.className = 'api-info';
-        apiInfoDiv.innerHTML = '🧠 AI: Meta-Llama-3.3-70B';
-        apiInfoDiv.title = 'Using Together API with Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model';
+        
+        if (isGitHubPages) {
+            apiInfoDiv.innerHTML = '⚠️ Local Mode (GitHub Pages)';
+            apiInfoDiv.title = 'API access is limited on GitHub Pages. Using local excuse database.';
+            apiInfoDiv.classList.add('warning');
+        } else {
+            apiInfoDiv.innerHTML = '🧠 AI: Meta-Llama-3.3-70B';
+            apiInfoDiv.title = 'Using Together API with Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model';
+        }
+        
         document.querySelector('.container').appendChild(apiInfoDiv);
         
-        // Show a notification that AI is enabled
+        // Show appropriate notification based on hosting environment
         setTimeout(() => {
             const notification = document.createElement('div');
             notification.className = 'notification';
-            notification.textContent = 'AI-powered excuses enabled!';
+            
+            if (isGitHubPages) {
+                notification.textContent = 'GitHub Pages detected: Using local excuse database. API functionality is limited.';
+                notification.classList.add('warning');
+            } else {
+                notification.textContent = 'AI-powered excuses enabled!';
+            }
+            
             document.body.appendChild(notification);
             
             setTimeout(() => {
@@ -43,9 +60,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         document.body.removeChild(notification);
                     }, 500);
-                }, 3000);
+                }, isGitHubPages ? 6000 : 3000); // Show warning longer
             }, 100);
         }, 1000);
+        
+        // Add GitHub Pages info banner if needed
+        if (isGitHubPages) {
+            addGitHubPagesInfoBanner();
+        }
+    }
+    
+    /**
+     * Add an information banner for GitHub Pages users
+     */
+    function addGitHubPagesInfoBanner() {
+        const banner = document.createElement('div');
+        banner.className = 'github-pages-banner';
+        banner.innerHTML = `
+            <p><strong>⚠️ Limited Functionality:</strong> You're viewing this app on GitHub Pages, which doesn't support direct API calls due to security restrictions.</p>
+            <p>The app will generate excuses using a local database instead of the AI model.</p>
+            <p>For full AI functionality, please use a different hosting solution with proper backend support.</p>
+            <button class="close-banner">✕</button>
+        `;
+        document.body.appendChild(banner);
+        
+        // Add close button functionality
+        banner.querySelector('.close-banner').addEventListener('click', () => {
+            banner.style.display = 'none';
+            localStorage.setItem('github-pages-banner-closed', 'true');
+        });
+        
+        // Only show if not previously closed
+        if (localStorage.getItem('github-pages-banner-closed') === 'true') {
+            banner.style.display = 'none';
+        }
     }
     
     // Set up suggestion chips

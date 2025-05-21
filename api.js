@@ -1,15 +1,49 @@
 // Excuses.com - API Integration File
 // This file contains the code to connect to the Together AI API
 
+// Check for GitHub Pages environment
+if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+    console.log('%c⚠️ GitHub Pages Environment Detected', 'font-size:14px; font-weight:bold; color:#ff9800');
+    console.log('%cThe Together API calls will not work directly from GitHub Pages due to CORS restrictions.', 'color:#ff5722');
+    console.log('%cThe application will fall back to using a local database of excuses instead.', 'color:#ff5722');
+    console.log('%cFor full AI functionality, consider deploying to:','font-weight:bold');
+    console.log('1. Netlify with serverless functions');
+    console.log('2. Vercel with API routes');
+    console.log('3. Your own server with proper CORS configuration');
+    console.log('%cAlternatively, you can use a CORS proxy (not recommended for production)', 'font-style:italic');
+}
+
 /**
  * Generate an excuse using Together API's Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model
  * @param {string} situation - The situation to generate an excuse for
  * @returns {Promise<string>} - The generated excuse
  */
 async function generateExcuseWithLlamaModel(situation) {
-    try {
-        const apiKey = 'tgp_v1__u8MIvPmKx522z6Ink0KrcWTbtBZKpIrw5m2nejKgMg';
-        const apiUrl = 'https://api.together.xyz/v1/chat/completions';
+    try {        // Check deployment environment
+        const isGithubPages = window.location.hostname.includes('github.io');
+        const isNetlify = window.location.hostname.includes('netlify.app') || 
+                        window.location.hostname === 'excuses.com';
+        const isDevelopment = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1';
+          // Determine how to handle API requests based on environment
+        let apiUrl, apiKey, useServerlessFunction = false;
+        
+        if (isNetlify) {
+            // On Netlify, use the serverless function
+            apiUrl = '/.netlify/functions/together-proxy';
+            useServerlessFunction = true;
+            console.log('Using Netlify serverless function for API calls');
+            // No API key needed in client - it's stored securely in environment variables
+        } else if (isGithubPages) {
+            // GitHub Pages doesn't support server-side code or CORS proxies properly
+            apiUrl = 'https://api.together.xyz/v1/chat/completions'; // This will likely fail with CORS error
+            apiKey = localStorage.getItem('together_api_key') || '';
+            console.log('GitHub Pages detected - API calls will likely fail due to CORS restrictions');
+        } else {
+            // Development or custom server
+            apiUrl = 'https://api.together.xyz/v1/chat/completions';
+            apiKey = localStorage.getItem('together_api_key') || 'tgp_v1__u8MIvPmKx522z6Ink0KrcWTbtBZKpIrw5m2nejKgMg';
+        }
         
         // Set up messages for the chat API
         const messages = [
@@ -23,12 +57,15 @@ async function generateExcuseWithLlamaModel(situation) {
             }
         ];
         
-        // Set up API request
+        // Show console message for debugging
+        console.log(`Making API request to: ${apiUrl}`);
+          // Set up API request
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                // Only include Authorization header when calling the API directly
+                ...(useServerlessFunction ? {} : {'Authorization': `Bearer ${apiKey}`})
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
@@ -40,9 +77,16 @@ async function generateExcuseWithLlamaModel(situation) {
                 presence_penalty: 0.3
             })
         });
-        
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
+          if (!response.ok) {
+            console.error(`API request failed with status ${response.status}`);
+            
+            // Handle specific error codes for GitHub Pages
+            if (response.status === 0 || response.status === 403) {
+                // CORS or network error, which is common with GitHub Pages
+                throw new Error("API access is blocked on GitHub Pages due to CORS restrictions. Please use a different hosting platform or set up a proxy.");
+            }
+            
+            throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
@@ -76,15 +120,37 @@ async function generateExcuseWithLlamaModel(situation) {
         return cleanupExcuse(generatedText);
     } catch (error) {
         console.error('Error calling Together API:', error);
-        // Display an error notification if available
-        if (typeof showNotification === 'function') {
-            showNotification('API Error! Falling back to local excuses.', 'error');
+        
+        // Generate a descriptive error message for GitHub Pages issues
+        let errorMessage = 'API Error! ';
+        if (window.location.hostname.includes('github.io')) {
+            errorMessage = 'API cannot be accessed directly from GitHub Pages due to security restrictions. ';
+            errorMessage += 'The app is falling back to local excuses. For AI functionality, use a different hosting solution or set up a proper backend.';
+            
+            // Show a more visible error message for GitHub Pages users
+            if (typeof showNotification === 'function') {
+                showNotification(errorMessage, 'error');
+            } else {
+                alert(errorMessage);
+            }
+            
+            // Log detailed debugging info
+            console.info('GitHub Pages detected. API calls require special handling.');
+        } else {
+            errorMessage += 'Falling back to local excuses.';
+            
+            // Display a general error notification if available
+            if (typeof showNotification === 'function') {
+                showNotification(errorMessage, 'error');
+            }
         }
+        
         // Fallback to local excuse generation if available
         if (typeof getExcuseForSituation === 'function') {
             return getExcuseForSituation(situation);
         }
-        return "I couldn't connect to the AI service. Please check your internet connection and try again.";
+        
+        return "I couldn't connect to the AI service. The AI functionality doesn't work on GitHub Pages without a custom backend.";
     }
 }
 
@@ -121,4 +187,27 @@ function cleanupExcuse(text) {
     cleaned = cleaned.replace(/\[.*?\]/g, '').trim();
     
     return cleaned;
+}
+
+// Check if the API is available and working
+async function checkApiAvailability() {
+    try {
+        // Simple test request with minimal tokens
+        const testSituation = "test";
+        const result = await generateExcuseWithLlamaModel(testSituation);
+        
+        // If we get a result without an error, the API is working
+        console.log("API check successful:", result.substring(0, 50) + "...");
+        return {
+            available: true,
+            source: "together-api"
+        };
+    } catch (error) {
+        console.warn("API check failed:", error.message);
+        return {
+            available: false,
+            error: error.message,
+            source: "local-fallback"
+        };
+    }
 }

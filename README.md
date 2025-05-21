@@ -13,6 +13,15 @@ A simple, elegant excuse generator for those moments when you need the perfect a
 - Easy copy-to-clipboard functionality
 - Mobile-responsive design
 
+## ⚠️ GitHub Pages Limitation
+
+**Note:** When deployed to GitHub Pages, the application cannot directly access the Together API due to CORS restrictions. On GitHub Pages, the app will automatically fall back to using a local database of excuses instead of the AI model.
+
+For full AI functionality, deploy this application to:
+- Netlify with serverless functions
+- Vercel with API routes
+- Your own server with proper CORS configuration
+
 ## How It Works
 
 The user enters a description of their situation, and our sophisticated excuse generator will create a plausible and relevant excuse. The system uses Together API's Meta-Llama/Llama-3.3-70B-Instruct-Turbo-Free model for generating creative and contextually appropriate excuses.
@@ -30,6 +39,47 @@ The user enters a description of their situation, and our sophisticated excuse g
 2. Generate an API key from your account settings
 3. Add your API key to the `.env` file or directly in the script.js file
 4. Make sure to protect your API key and not expose it in public repositories
+
+## Deployment Options
+
+### Netlify Deployment (Recommended)
+
+To deploy this application with full AI functionality on Netlify:
+
+1. Fork or clone this repository to your GitHub account
+2. Sign up for a [Netlify](https://www.netlify.com/) account
+3. From the Netlify dashboard, click "New site from Git"
+4. Connect to your GitHub account and select this repository
+5. In the build settings:
+   - Base directory: leave empty
+   - Build command: leave empty (no build required)
+   - Publish directory: `.` (root of the project)
+6. Click "Show advanced" and add the following environment variable:
+   - Key: `TOGETHER_API_KEY`
+   - Value: Your Together API key
+7. Click "Deploy site"
+
+After deployment, your site will have full AI functionality with serverless functions handling the API requests securely.
+
+### GitHub Pages (Limited Functionality)
+
+You can deploy to GitHub Pages, but the AI functionality **will not work**. The app will fall back to using the local database of excuses.
+
+1. Enable GitHub Pages in your repository settings
+2. Set the source to your main branch
+3. Wait for deployment to complete
+
+When users visit your GitHub Pages site, they will see a notice explaining that AI functionality is disabled due to platform limitations.
+
+### Custom Server
+
+For a custom server deployment:
+
+1. Clone this repository
+2. Configure your server to serve the static files
+3. Set up CORS headers to allow requests to Together API
+4. Alternatively, implement a server-side proxy similar to the Netlify function
+5. Deploy to your hosting provider
 
 ## Technologies Used
 

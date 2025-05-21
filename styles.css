@@ -42,6 +42,12 @@
     cursor: help;
 }
 
+.api-info.warning {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: #ff6d00;
+    border: 1px solid #ff9800;
+}
+
 .notification {
     position: fixed;
     bottom: -60px;
@@ -261,36 +267,6 @@ button {
     background-color: rgba(78, 84, 200, 0.1);
 }
 
-.suggestion-chips {
-    padding: 0 20px 30px;
-}
-
-.suggestion-chips p {
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.chip {
-    background-color: white;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.chip:hover {
-    background-color: var(--primary-light);
-    color: white;
-    border-color: var(--primary-light);
-}
-
 footer {
     text-align: center;
     padding: 20px;
@@ -318,6 +294,81 @@ footer small {
 .api-settings:hover {
     opacity: 1;
     transform: rotate(45deg);
+}
+
+/* GitHub Pages specific styling */
+.github-pages-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 152, 0, 0.95);
+    color: white;
+    padding: 15px 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.github-pages-banner p {
+    margin: 5px 0;
+}
+
+.github-pages-banner p strong {
+    font-weight: 600;
+}
+
+.github-pages-banner .close-banner {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.github-pages-banner .close-banner:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+/* Deployment status styles */
+.deployment-status {
+    font-size: 0.85rem;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.warning-text {
+    color: #ff9800;
+}
+
+.success-text {
+    color: var(--success-color);
+}
+
+.info-text {
+    color: var(--primary-color);
+}
+
+.footer-links {
+    margin-top: 10px;
+    font-size: 0.85rem;
+}
+
+.footer-links a {
+    color: var(--primary-light);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 /* Responsive adjustments */
