@@ -2,7 +2,7 @@
 
 A simple, elegant excuse generator for those moments when you need the perfect alibi.
 
-**Live Demo:** [https://biraj-p.github.io/excuses-generator/](https://biraj-p.github.io/excuses-generator/)
+**Live Demo:** [Excuses.com](https://biraj-p.github.io/Excuses.com/)
 
 ## Features
 
