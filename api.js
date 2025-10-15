@@ -8,7 +8,7 @@
  */
 async function generateExcuseWithLlamaModel(situation) {
     try {
-        const apiKey = 'tgp_v1__u8MIvPmKx522z6Ink0KrcWTbtBZKpIrw5m2nejKgMg';
+        const apiKey = TOGETHER_API_KEY;
         const apiUrl = 'https://api.together.xyz/v1/chat/completions';
         
         // Set up messages for the chat API
